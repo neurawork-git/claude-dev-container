@@ -42,6 +42,22 @@ Repos, denen du nicht traust, auf eine VM, alles andere in Container. Zustand in
 
 Jedes Repo bekommt eigene Volumes, also einmal je Repo anmelden. Den Ordner `.devcontainer/` committen: Wer das Repo klont, bekommt dieselbe Umgebung.
 
+## Fertiges Image statt selbst bauen
+
+Bei jedem Push baut eine GitHub Action das Image samt Claude Code und legt es öffentlich in die GitHub Container Registry. Ziehen geht ohne Anmeldung:
+
+```bash
+docker pull ghcr.io/neurawork-git/claude-dev-container:latest
+```
+
+Direkt im Terminal starten, mit deinem Projektordner als `/workspace` und der Netzsperre:
+
+```bash
+docker run --rm -it --cap-add=NET_ADMIN --cap-add=NET_RAW -v claude-code-config:/home/node/.claude -e CLAUDE_CONFIG_DIR=/home/node/.claude -v "${PWD}:/workspace" ghcr.io/neurawork-git/claude-dev-container:latest bash -c "sudo /usr/local/bin/netzsperre.sh && bash"
+```
+
+Im Container dann `claude`. Für VS Code ersetzt du in deiner `devcontainer.json` die Zeile `"build": { "dockerfile": "Dockerfile" }` durch `"image": "ghcr.io/neurawork-git/claude-dev-container:latest"` und streichst den Block `features`, weil Claude Code schon im Image steckt. Die Liste `erlaubt.txt` ist im fertigen Image fest; wer eigene Domains braucht, baut selbst wie oben.
+
 ## Prüfen, dass es steht
 
 Im Terminal des Containers:
