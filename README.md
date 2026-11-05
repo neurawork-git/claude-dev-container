@@ -69,6 +69,7 @@ Ohne Einzelfreigaben arbeiten lassen: im Container `claude --dangerously-skip-pe
 
 - **Nur für Repos, denen du traust.** Mit `--dangerously-skip-permissions` kann ein bösartiges Projekt alles abfließen lassen, was im Container liegt, auch deinen Claude-Login, und zwar über jedes erlaubte Ziel, GitHub eingeschlossen.
 - **Keine Schlüssel oder Geheimnisse vom Laptop einhängen**, etwa `~/.ssh` oder `.env`-Dateien mit echten Zugangsdaten.
+- **VS Code reicht deinen Git-Login durch.** Ist auf dem Laptop ein Git Credential Helper eingerichtet (unter Windows meist der Git Credential Manager) oder läuft ein SSH-Agent, gibt VS Code beides automatisch in den Container weiter. Ein Agent im Container kann damit überall pushen, wo du es kannst. Prüfen im Container: `git config --get-all credential.helper; echo "$SSH_AUTH_SOCK"`. Für fremde Repos besser mit einem repo-gebundenen, kurzlebigen Token arbeiten als mit deinem vollen Login.
 - **Das Repo ist schreibbar eingehängt:** Jede Änderung im Container landet sofort auf deinem Laptop, auch eine an `.devcontainer/erlaubt.txt`. Änderungen an `.devcontainer/` vor einem Rebuild ansehen.
 - **Was offen bleibt:** Namensauflösung über den Namensserver des Containers. Gesperrt sind Dienste auf dem Laptop, Geräte im Heimnetz und IPv6.
 - `sudo` darf `node` nur für `netzsperre.sh`, sonst nichts.
