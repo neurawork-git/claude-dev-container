@@ -98,6 +98,39 @@ $ cat ~/.claude/marker.txt
 1793876934
 ```
 
+## Grundlagen zum Nachmachen
+
+Neben der Vorlage liegen zwei kleine Beispiele, mit denen du die Grundbegriffe selbst ausprobierst. Befehle in Git-Bash oder einem Linux-Terminal, Docker muss laufen.
+
+**`beispiele/hallo/`: ein Image bauen und starten.** Ein Dockerfile auf Basis von `alpine:3.21` und ein Skript `app.sh`.
+
+```bash
+cd claude-dev-container/beispiele/hallo
+docker build -t hallo .
+docker history hallo
+echo 'echo 3' >> app.sh && docker build -t hallo .   # nur COPY läuft neu
+docker run --rm hallo
+```
+
+Zustand und Port:
+
+```bash
+docker run --rm -v daten:/daten alpine sh -c "echo wichtig > /daten/daten.txt"
+docker run --rm -v daten:/daten alpine sh -c "cat /daten/daten.txt"
+docker run -d --name web -p 127.0.0.1:8080:8080 hallo sh -c "busybox-extras httpd -f -p 8080 -h /app"
+# Browser: http://127.0.0.1:8080/app.sh
+docker rm -f web && docker volume rm daten
+```
+
+**`beispiele/compose/`: drei Dienste aus einer Datei.** Datenbank, lokales Sprachmodell (Ollama) und Open WebUI. Die Images sind zusammen mehrere GB groß.
+
+```bash
+cd claude-dev-container/beispiele/compose
+cp env.example .env        # eigenes Passwort eintragen; .env bleibt lokal
+docker compose up -d       # Oberfläche: http://127.0.0.1:3000
+docker compose down
+```
+
 ## Wann es nicht passt
 
 - **Das Repo ist fremd oder nicht vertrauenswürdig.** Der Container teilt sich den Kernel mit allen anderen Containern auf deinem Rechner, und was darin liegt, kann über erlaubte Ziele hinaus. Dafür eine eigene VM.
