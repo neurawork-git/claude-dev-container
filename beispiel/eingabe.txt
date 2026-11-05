@@ -1,0 +1,43 @@
+Rechner:  Windows 11, Docker Desktop läuft, Git-Einstellung core.autocrlf=true
+Repo:     mein-projekt, frisch angelegt, nur eine README.md
+Vorlage:  claude-dev-container, per git clone geholt
+
+Schritt 1 (PowerShell, im Ordner claude-dev-container):
+  powershell -ExecutionPolicy Bypass -File .\vorab-check.ps1
+
+Schritt 2 (Ordner .devcontainer der Vorlage in das Repo kopiert, im Beispiel in Git Bash):
+  cp -r ../claude-dev-container/.devcontainer ./mein-projekt/
+
+Schritt 3 (Container bauen und starten). In VS Code: "Dev Containers: Reopen in Container".
+Im Beispiel derselbe Schritt ohne Oberfläche, mit der Dev-Containers-Kommandozeile:
+  npx @devcontainers/cli up --workspace-folder .
+
+Prüfen "läuft", im Terminal des Containers:
+  whoami
+  claude --version
+
+Prüfen "Netz gesperrt", im Terminal des Containers:
+  curl -sS --max-time 5 https://example.com
+  curl -sS --max-time 5 https://api.github.com/zen
+  curl -sS --max-time 5 -o /dev/null -w '%{http_code}\n' https://claude.ai
+  curl -sS --max-time 5 -o /dev/null -w '%{http_code}\n' https://platform.claude.com
+
+Laptop-Dienst gesperrt: auf dem Laptop einen Webserver starten
+  python -m http.server 8099 --bind 127.0.0.1
+und im Container
+  curl -sS -m 5 http://host.docker.internal:8099
+
+Rechte: im Container
+  sudo -l
+  echo x >> /usr/local/etc/netzsperre/erlaubt.txt
+
+Zustand prüfen: Datei ins Volume schreiben
+  date +%s > ~/.claude/marker.txt
+Container löschen und neu bauen (in VS Code: "Dev Containers: Rebuild Container"):
+  npx @devcontainers/cli up --workspace-folder . --remove-existing-container
+dann im neuen Container
+  cat ~/.claude/marker.txt
+
+Repo prüfen: im Container
+  echo aus-dem-container > /workspace/notiz.txt
+und auf dem Laptop, Git Bash im Repo-Ordner: cat notiz.txt

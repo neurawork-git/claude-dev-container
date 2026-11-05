@@ -1,0 +1,6 @@
+# Dateien, die im Container laufen oder gelesen werden, brauchen LF,
+# auch wenn Git unter Windows sonst CRLF schreibt.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.txt text eol=lf
+*.json text eol=lf

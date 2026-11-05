@@ -1,0 +1,44 @@
+// Anschluss: wie VS Code den Container baut, startet und sich verbindet.
+{
+  "name": "Claude Code im Dev Container",
+
+  // Bauplan im selben Ordner: Node 22, Werkzeuge der Netzsperre, Benutzer node.
+  "build": { "dockerfile": "Dockerfile" },
+
+  // Claude Code als offizielles Dev-Container-Feature von Anthropic.
+  // Es bringt auch die VS-Code-Erweiterung "Claude Code" mit.
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+
+  // Zwei Zusatzrechte: Der Container darf sein eigenes Netz regeln (für die Netzsperre).
+  "runArgs": ["--cap-add=NET_ADMIN", "--cap-add=NET_RAW"],
+
+  // Gearbeitet wird als node, nicht als root.
+  "remoteUser": "node",
+  "containerUser": "node",
+
+  // Code ins Repo: Der geöffnete Ordner ist nach /workspace eingehängt.
+  // Jede Änderung im Container liegt sofort auf dem Laptop.
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+
+  // Zustand ins Volume: Login und Einstellungen von Claude Code, dazu der Befehlsverlauf.
+  // Beide Volumes gehören zu diesem einen Projekt und überstehen "Rebuild Container".
+  // Keine Ordner vom Laptop wie ~/.ssh hier einhängen.
+  "mounts": [
+    "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume",
+    "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume"
+  ],
+
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "HISTFILE": "/commandhistory/.bash_history",
+    "PROMPT_COMMAND": "history -a",
+    "TZ": "${localEnv:TZ:Europe/Berlin}"
+  },
+
+  // Netzsperre bei jedem Start. VS Code verbindet sich erst, wenn sie steht.
+  "postStartCommand": "sudo /usr/local/bin/netzsperre.sh",
+  "waitFor": "postStartCommand"
+}

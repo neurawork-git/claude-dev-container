@@ -1,0 +1,20 @@
+# Ziele, die der Container trotz Netzsperre erreicht. Eine Domain je Zeile,
+# Zeilen mit # werden übersprungen. GitHub ist immer erlaubt (Adressliste von
+# api.github.com/meta). Nach einer Änderung: "Dev Containers: Rebuild Container".
+
+# Pakete für Claude Code und Node-Projekte
+registry.npmjs.org
+
+# Claude Code: Modell-API und Anmeldung mit dem Abo
+api.anthropic.com
+claude.ai
+platform.claude.com
+
+# VS Code im Container: Erweiterungen und Server-Updates
+marketplace.visualstudio.com
+vscode.blob.core.windows.net
+update.code.visualstudio.com
+
+# Beispiele zum Ergänzen (Raute entfernen):
+# pypi.org
+# files.pythonhosted.org

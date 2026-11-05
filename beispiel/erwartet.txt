@@ -1,0 +1,82 @@
+Echter Lauf am 05.11.2026, Windows 11 mit Docker Desktop (Server 29.9.2),
+Dev-Containers-Kommandozeile 0.90.0. Gekürzt; Pfade und IDs durch <…> ersetzt.
+
+== Schritt 1: vorab-check.ps1
+[ok]    Docker: Server 29.9.2, Linux-Container
+[ok]    VS Code: Erweiterung Dev Containers installiert
+[ok]    Git: 2.48.1.windows.1
+bereit
+
+== Nach git clone mit core.autocrlf=true: Zeilenenden bleiben LF
+.devcontainer/netzsperre.sh:  Bourne-Again shell script, Unicode text, UTF-8 text executable
+
+== Schritt 3: Container bauen und starten (89 s, Basis-Image lag schon im Cache)
+Feature       : Claude Code CLI
+Id            : ghcr.io/anthropics/devcontainer-features/claude-code
+docker run … --mount source=<…>\mein-projekt,target=/workspace,type=bind
+             --mount source=claude-code-config-<id>,target=/home/node/.claude,type=volume
+             --mount source=claude-code-bashhistory-<id>,target=/commandhistory,type=volume
+             -e CLAUDE_CONFIG_DIR=/home/node/.claude … -u node
+             --cap-add=NET_ADMIN --cap-add=NET_RAW …
+Container started
+netzsperre: erlaubt: GitHub (81 Bereiche)
+netzsperre: erlaubt: registry.npmjs.org (12 Adressen)
+netzsperre: erlaubt: api.anthropic.com (1 Adressen)
+netzsperre: erlaubt: claude.ai (1 Adressen)
+netzsperre: erlaubt: platform.claude.com (1 Adressen)
+netzsperre: erlaubt: marketplace.visualstudio.com (2 Adressen)
+netzsperre: erlaubt: vscode.blob.core.windows.net (1 Adressen)
+netzsperre: erlaubt: update.code.visualstudio.com (2 Adressen)
+netzsperre: IPv6 gesperrt
+netzsperre: Selbsttest: example.com gesperrt
+netzsperre: Selbsttest: api.github.com erreichbar
+netzsperre: aktiv
+{"outcome":"success", … "remoteUser":"node","remoteWorkspaceFolder":"/workspace"}
+
+== Prüfen: läuft
+$ whoami
+node
+$ claude --version
+2.1.318 (Claude Code)
+
+== Prüfen: Netz gesperrt
+$ curl -sS --max-time 5 https://example.com
+curl: (7) Failed to connect to example.com port 443 after 16 ms: Couldn't connect to server
+$ curl -sS --max-time 5 https://api.github.com/zen
+Responsive is better than fast.
+$ curl -sS --max-time 5 -o /dev/null -w '%{http_code}\n' https://claude.ai
+403
+$ curl -sS --max-time 5 -o /dev/null -w '%{http_code}\n' https://platform.claude.com
+200
+(403 und 200 sind Antworten der Server: Die Verbindung steht. Gesperrtes endet mit curl: (7).)
+
+== Laptop-Dienst gesperrt (auf dem Laptop läuft python -m http.server 8099 --bind 127.0.0.1)
+$ curl -sS -m 5 http://host.docker.internal:8099
+curl: (7) Failed to connect to host.docker.internal port 8099 after 1 ms: Couldn't connect to server
+Gegenprobe, dasselbe Image ohne Netzsperre:
+$ curl -sS -m 5 http://host.docker.internal:8099 | head -1
+<!DOCTYPE HTML>
+
+== Rechte
+$ sudo -l
+User node may run the following commands on <…>:
+    (root) NOPASSWD: /usr/local/bin/netzsperre.sh
+$ echo x >> /usr/local/etc/netzsperre/erlaubt.txt
+bash: line 1: /usr/local/etc/netzsperre/erlaubt.txt: Permission denied
+
+== Selbsttest schlägt an: example.com testweise in die Liste eingetragen
+netzsperre: FEHLER: Selbsttest: example.com ist erreichbar, die Sperre greift nicht.
+exit=1
+
+== Zustand: Datei ins Volume, Container gelöscht und neu gebaut (neue Container-ID)
+$ date +%s > ~/.claude/marker.txt
+1793876934
+-- up --remove-existing-container --
+netzsperre: aktiv
+$ cat ~/.claude/marker.txt
+1793876934
+
+== Repo: Datei im Container geschrieben, liegt sofort auf dem Laptop
+$ echo aus-dem-container > /workspace/notiz.txt
+Laptop$ cat notiz.txt
+aus-dem-container
