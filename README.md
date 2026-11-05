@@ -62,6 +62,7 @@ Ohne Einzelfreigaben arbeiten lassen: im Container `claude --dangerously-skip-pe
 ## Anpassen
 
 - **Liste erweitern.** Braucht dein Projekt PyPI oder eine Paketquelle der Firma, trägst du die Domain in `.devcontainer/erlaubt.txt` ein (Beispiele stehen auskommentiert darin), dann „Rebuild Container“. Die Liste wird ins Image gebaut und gehört dort root: Der Agent kann die laufende Sperre nicht selbst lockern.
+- **Websuche und Seiten lesen.** Die Websuche von Claude Code läuft auf Anthropics Servern und funktioniert hinter der Sperre. Seiten öffnen (WebFetch) lädt der Container selbst herunter, das geht nur für Domains aus `erlaubt.txt`. Trag die Doku-Seiten ein, die dein Projekt braucht. Jede Domain auf der Liste ist zugleich ein Weg, auf dem Daten hinausgehen können, auch per GET über die Adresse.
 - **Anderer Coding-Agent.** In `devcontainer.json` das Feature von Claude Code durch die Installation des anderen Agenten ersetzen, in `erlaubt.txt` die Domains seines Anbieters eintragen; die Anthropic-Domains können raus.
 - **Zeitzone.** Der Container übernimmt die Umgebungsvariable `TZ` des Laptops, sonst `Europe/Berlin`.
 
