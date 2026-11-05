@@ -2,6 +2,9 @@
 # (siehe devcontainer.json), hier steht nur, was die Netzsperre und der Alltag brauchen.
 FROM node:22-bookworm
 
+# Verknüpft das fertige Image in der GitHub Container Registry mit diesem Repo.
+LABEL org.opencontainers.image.source=https://github.com/neurawork-git/claude-dev-container
+
 # Werkzeuge: iptables + ipset für die Netzsperre, jq für die GitHub-Adressliste,
 # sudo für genau ein Skript, dazu Git und ein paar Helfer fürs Terminal.
 RUN apt-get update \
